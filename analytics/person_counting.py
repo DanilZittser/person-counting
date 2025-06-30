@@ -1,5 +1,7 @@
+from typing import Any
+
 from handlers.handler import Handler
-from handlers.models import Blob, Image, Event
+from handlers.models import Blob, Detections, Events, Image, Tracks
 
 
 class PersonCountingAnalytics:
@@ -14,17 +16,23 @@ class PersonCountingAnalytics:
             heuristic: Handler,  # определение направления движения (слева направо или справа налево)
     ):
         self._pre_processor = pre_processor
-        ...
+        self._inference = inference
+        self._post_processor = post_processor
+        self._tracker = tracker
+        self._heuristic = heuristic
 
     def on_start(self) -> None:
         self._pre_processor.on_start()
         ...
 
-    def process_frame(self, image: Image) -> Event:
+    def process_frame(self, image: Image) -> Events:
         """Основной метод видеоаналитики, реализующий логику обработки поступающих кадров."""
         blob: Blob = self._pre_processor.handle(image=image)
-        ...
-        return event
+        inference_output: Any = self. _inference(...)
+        detections: Detections = self._post_processor(...)
+        finished_tracks: Tracks = self._tracker(...)
+        events: Events = self._heuristic(...)
+        return events
 
     def on_exit(self) -> None:
         self._pre_processor.on_exit()

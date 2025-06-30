@@ -1,2 +1,2 @@
-# person-counting
+# `person-counting`
 Person counting VAP

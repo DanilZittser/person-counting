@@ -28,10 +28,10 @@ class PersonCountingAnalytics:
     def process_frame(self, image: Image) -> Events:
         """Основной метод видеоаналитики, реализующий логику обработки поступающих кадров."""
         blob: Blob = self._pre_processor.handle(image=image)
-        inference_output: Any = self. _inference(...)
-        detections: Detections = self._post_processor(...)
-        finished_tracks: Tracks = self._tracker(...)
-        events: Events = self._heuristic(...)
+        inference_output: Any = self._inference.handle(blob=blob)
+        detections: Detections = self._post_processor.handle(inference_output)
+        finished_tracks: Tracks = self._tracker.handle(detections)
+        events: Events = self._heuristic.handle(finished_tracks)
         return events
 
     def on_exit(self) -> None:

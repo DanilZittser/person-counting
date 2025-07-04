@@ -1,13 +1,14 @@
 from dataclasses import dataclass
+from typing import List
 
 from nptyping import Float32, NDArray, Shape, UInt8
 
-
+# Типы изображений
 ImageRGB = NDArray[Shape['* height, * width, 3 rgb'], UInt8]
 ImageBGR = NDArray[Shape['* height, * width, 3 bgr'], UInt8]
 Image = ImageRGB | ImageBGR
 
-
+# Типы blob-данных
 BlobFloat = NDArray[Shape['*, *, *, *'], Float32]
 BlobInt = NDArray[Shape['*, *, *, *'], UInt8]
 Blob = BlobFloat | BlobInt
@@ -16,10 +17,10 @@ Blob = BlobFloat | BlobInt
 @dataclass
 class Box:
     """Класс для хранения координат ограничивающего прямоугольника обнаруженного объекта."""
-    left: int  # x-координата левого верхнего угла прямоугольной ограничивающей рамки
-    top: int  # y-координата левого верхнего угла
-    right: int  # y-координата правого нижнего угла
-    bottom: int  # y-координата правого нижнего угла
+    left: int
+    top: int
+    right: int
+    bottom: int
 
 
 @dataclass
@@ -31,16 +32,16 @@ class Detection:
     label_as_str: str
 
 
-Detections: list[Detection]  # все обнаружения объектов в одном кадре
+@dataclass
+class Detections:
+    """Класс-обёртка над списком обнаружений для совместимости с пайплайном."""
+    detections: List[Detection]
 
 
 @dataclass
 class Track:
-    track_id: int  # идентификатор трека
-    route: list[Detection]  # список обнаружений ОДНОГО И ТОГО ЖЕ объекта на последовательности кадров
-
-
-Tracks: list[Track]
+    track_id: int
+    route: List[Detection]
 
 
 @dataclass
@@ -49,5 +50,3 @@ class Event:
     left_to_right: int
     right_to_left: int
 
-
-Events: list[Event]

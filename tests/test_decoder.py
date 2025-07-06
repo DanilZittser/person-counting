@@ -2,11 +2,12 @@
 
 import os
 import pytest
-import cv2
-
+import numpy as np
 from handlers.decoder import VideoDecoder
 
-TEST_VIDEO_PATH = r"C:\Users\LENOVO\Desktop\Видосик.mp4"
+# Абсолютный путь к видеофайлу
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TEST_VIDEO_PATH = os.path.join(project_root, "assets", "tests", "video_decoder", "Видосик.mp4")
 
 
 @pytest.mark.skipif(not os.path.exists(TEST_VIDEO_PATH), reason="Видео не найдено")
@@ -18,7 +19,7 @@ def test_video_decoder_handle_returns_frames():
     frame = next(generator, None)
 
     assert frame is not None, "handle() должен вернуть хотя бы один кадр"
-    assert isinstance(frame, (list, tuple, cv2.Mat, type(frame))), "Кадр должен быть изображением"
+    assert isinstance(frame, np.ndarray), "Кадр должен быть изображением (np.ndarray)"
     assert hasattr(generator, '__iter__'), "handle() должен быть генератором"
 
     decoder.on_exit()

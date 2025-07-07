@@ -47,3 +47,4 @@ def test_detector_output(test_image):
         assert hasattr(det, 'score')
         assert 0.0 <= det.score <= 1.0
 
+    print(f"YoloInference + PostProcessor: обнаружено {len(detections.detections)} объектов")

@@ -1,9 +1,10 @@
 from analytics.person_counting import PersonCountingAnalytics as Analytics
 from handlers.handler import Handler
+from handlers.decoder import VideoDecoder
 
 
 def main() -> None:
-    decoder: Handler = VideoDecoder(video_filepath=...)  # todo
+    decoder: Handler = VideoDecoder(video_path=...)  # todo
     decoder.on_start()
 
     analytics: Analytics = Analytics(...)

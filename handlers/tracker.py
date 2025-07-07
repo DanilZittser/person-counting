@@ -17,9 +17,11 @@ def iou(box1: Box, box2: Box) -> float:
 
 
 class IouTracker(Handler):
-    def __init__(self, iou_threshold: float = 0.5, score_threshold: float = 0.6, max_missed: int = 5):
+    def __init__(self, iou_threshold: float = 0.5, min_input_score: float = 0.3, score_threshold: float = 0.6,
+                 max_missed: int = 5):
         self.iou_threshold = iou_threshold
         self.max_missed = max_missed
+        self.min_input_score = min_input_score
         self.score_threshold = score_threshold
         self.next_id = 1
         self.active_tracks: dict[int, dict] = {}
@@ -34,7 +36,8 @@ class IouTracker(Handler):
 
     def handle(self, detections: List[Detection]) -> List[Track]:
         self.frame_idx += 1
-        unmatched_detections = detections.copy()
+        filtered_detections = [d for d in detections if d.score >= self.min_input_score]
+        unmatched_detections = filtered_detections.copy()
 
         # Сопоставление детекций с активными треками
         for track_id, track_data in list(self.active_tracks.items()):

@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from handlers.pre_processor import PreProcessor  # импорт твоего класса
+from handlers.pre_processor import PreProcessor  
 
 def test_preprocessor_output_shape_and_range():
     dummy_frame = np.random.randint(0, 256, (720, 1280, 3), dtype=np.uint8)

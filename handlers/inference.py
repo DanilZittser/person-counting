@@ -18,39 +18,13 @@ class YoloInference(Handler):
     def on_start(self):
         self.model = YOLO(self.model_path)
 
-    def handle(self, tensor: torch.Tensor) -> list[Detection]:
+    def handle(self, tensor: torch.Tensor) -> Any:
         if self.model is None:
             raise RuntimeError("Model not initialized. Call on_start() first.")
 
-        # Конвертация тензора в numpy (HWC, RGB)
-        img_np = tensor.squeeze(0).numpy()  
-        img_np = np.transpose(img_np, (1, 2, 0))  
-        img_np = (img_np * 255).astype(np.uint8)
-
-        # Инференс
-        results = self.model.predict(
-            img_np,
-            conf=self.conf_threshold,
-            verbose=False
-        )
-
-        # Конвертация результатов в формат проекта
-        detections = []
-        for result in results:
-            for box in result.boxes:
-                x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
-                detections.append(
-                    Detection(
-                        box=Box(left=x1, top=y1, right=x2, bottom=y2),
-                        score=float(box.conf[0]),
-                        label_as_int=int(box.cls[0]),
-                        label_as_str=result.names[int(box.cls[0])]
-                    )
-                )
-        return detections
+        # Прямой инференс по тензору
+        results = self.model.predict(tensor, conf=self.conf_threshold, verbose=False)
+        return results 
 
     def on_exit(self):
-        """Освобождение ресурсов модели."""
-        if self.model is not None:
-            del self.model
             self.model = None

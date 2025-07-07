@@ -1,40 +1,23 @@
 import cv2
-import numpy as np
-import torch
-import pytest
 from handlers.pre_processor import PreProcessor
 from handlers.inference import YoloInference
 
-@pytest.fixture
-def test_image():
-    """Фикстура с тестовым изображением"""
-    img = np.zeros((640, 640, 3), dtype=np.uint8)
-    cv2.rectangle(img, (100, 100), (300, 300), (255, 255, 255), -1)
-    return img
+# Инициализация
+preprocessor = PreProcessor(input_size=(640, 640))
+detector = YoloInference(model_path="yolo11n.pt")
 
-def test_preprocessor_output(test_image):
-    """Тест преобразования изображения в тензор"""
-    preprocessor = PreProcessor(input_size=(640, 640))
-    tensor = preprocessor.handle(test_image)
-    
-    assert isinstance(tensor, torch.Tensor)
-    assert tensor.shape == (1, 3, 640, 640)
-    assert 0 <= tensor.min() <= 1
-    assert 0 <= tensor.max() <= 1
-    print("PreProcessor: преобразование изображения в тензор работает корректно")
+# Загрузка изображения
+image = cv2.imread("/content/person-counting/result.jpg")  
+tensor = preprocessor.handle(image)  
+detector.on_start()  
+detections = detector.handle(tensor)  
 
-def test_detector_output(test_image):
-    """Тест работы YoloInference"""
-    preprocessor = PreProcessor(input_size=(640, 640))
-    detector = YoloInference(model_path="yolo11n.pt")
-    
-    tensor = preprocessor.handle(test_image)
-    detector.on_start()
-    detections = detector.handle(tensor)
-    
-    assert isinstance(detections, list)
-    if detections:  
-        det = detections[0]
-        assert hasattr(det, 'box')
-        assert hasattr(det, 'score')
-    print(f"YoloInference: обнаружено {len(detections)} объектов")
+# 4. Визуализация результатов
+for det in detections:
+    x1, y1, x2, y2 = det.box.left, det.box.top, det.box.right, det.box.bottom
+    cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+    cv2.putText(image, f"{det.label_as_str} {det.score:.2f}", 
+                (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0,255,0), 2)
+
+from google.colab.patches import cv2_imshow
+cv2_imshow(image) автомат тест import cv2

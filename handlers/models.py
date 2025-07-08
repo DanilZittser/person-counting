@@ -40,8 +40,11 @@ class Detections:
 
 @dataclass
 class Track:
-    track_id: int
-    route: List[Detection]
+    track_id: int  # идентификатор трека
+    route: list[Detection]  # список обнаружений ОДНОГО И ТОГО ЖЕ объекта на последовательности кадров
+
+
+Tracks: list[Track]
 
 
 @dataclass
@@ -49,4 +52,8 @@ class Event:
     track_id: int
     left_to_right: int
     right_to_left: int
+
+@dataclass
+class Events:
+    Events: list[Event]
 

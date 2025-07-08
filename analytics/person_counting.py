@@ -1,7 +1,5 @@
-from typing import Any
-
 from handlers.handler import Handler
-from handlers.models import Blob, Detections, Events, Image, Tracks
+from handlers.models import Events, Image
 
 
 class PersonCountingAnalytics:
@@ -21,19 +19,21 @@ class PersonCountingAnalytics:
         self._tracker = tracker
         self._heuristic = heuristic
 
-    def on_start(self) -> None:
-        self._pre_processor.on_start()
-        ...
+    def on_start(self):
+        for component in [self._pre_processor, self._inference,
+                          self._post_processor, self._tracker, self._heuristic]:
+            component.on_start()
 
     def process_frame(self, image: Image) -> Events:
         """Основной метод видеоаналитики, реализующий логику обработки поступающих кадров."""
-        blob: Blob = self._pre_processor.handle(image=image)
-        inference_output: Any = self._inference.handle(blob=blob)
-        detections: Detections = self._post_processor.handle(inference_output)
-        finished_tracks: Tracks = self._tracker.handle(detections)
-        events: Events = self._heuristic.handle(finished_tracks)
-        return events
+        tensor = self._pre_processor.handle(image)
+        raw_results = self._inference.handle(tensor)
+        detections = self._post_processor.handle(raw_results)
+        finished_tracks = self._tracker.handle(detections.detections)
+        events = self._heuristic.handle(finished_tracks)
+        return Events(events)
 
-    def on_exit(self) -> None:
-        self._pre_processor.on_exit()
-        ...
+    def on_exit(self):
+        for component in [self._pre_processor, self._inference,
+                          self._post_processor, self._tracker, self._heuristic]:
+            component.on_exit()
